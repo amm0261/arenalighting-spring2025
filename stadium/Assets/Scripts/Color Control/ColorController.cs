@@ -12,16 +12,19 @@ using UnityEngine.UI;
 public class ColorController : MonoBehaviour
 {
     //Make sure to attach these Buttons in the Inspector
+    //Hold references to UI elements in the inspector
     public Toggle fadeToggle;
     public Toggle randomToggle;
     public InputField hexCodeInput;
     public InputField speedInput;
 
+    //Variables for managing color fading gradient
     Gradient gradient;
     GradientColorKey[] colorKey;
     GradientAlphaKey[] alphaKey;
     Color? hexCodeColor;
 
+    //Variables for controlling fading and randomizing
     [SerializeField]
     public bool fading;
     [SerializeField]
@@ -37,9 +40,11 @@ public class ColorController : MonoBehaviour
 
     void Start()
     {
+        //Var init
         fadeFrame = 0.0f;
         fadeDuration = 1.0f;
 
+        //Add listeners for the input fields and toggles to get user inputs
         hexCodeInput.onEndEdit.AddListener(OnEditHexCodeString);
         speedInput.onEndEdit.AddListener(OnSetSpeed);
         randomToggle.onValueChanged.AddListener(delegate {
@@ -54,11 +59,13 @@ public class ColorController : MonoBehaviour
         GradientColorFade();
     }
 
+    //Take in user input, parse it and set speed of color fade
     public void OnSetSpeed(string speed)
     {
         fadeDuration = float.Parse(speed);
     }
 
+    //
     public void OnContinualRandomToggle(bool toggleState)
     {
         if (toggleState)
