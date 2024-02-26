@@ -278,24 +278,39 @@ public class ColorController : MonoBehaviour
         // Disable fading
         fading = false;
 
+        // Declare a variable to hold the new random color
         Color newColor;
+
+        // Get all LED game objects in the scene
         GameObject[] allLEDs = GetAllLEDs();
+
+        // Iterate through each LED game object
         foreach (GameObject LED in allLEDs)
         {
+            // Generate a random number between 1 and 5
             int randomCol = Random.Range(1, 6);
+
+            // Check the random number to determine the color to assign
             if (randomCol < 3)
             {
+                // Assign a blue color with specified RGB values and alpha
                 newColor = new Color(0.2862745f, 0.4313726f, 0.6117647f, .5f);
             }
             else if (randomCol > 4)
             {
+                // Assign a white color with maximum RGB values and alpha
                 newColor = new Color(1.0f, 1.0f, 1.0f, .5f);
             }
             else
             {
+                // Assign an orange color with specified RGB values and alpha
                 newColor = new Color(0.8666667f, 0.3333333f, 0.04705882f, .5f);
             }
+
+             // Set the color of the LED's material
             LED.GetComponent<Renderer>().material.color = newColor;
+
+            // Set the emission color of the LED's material
             LED.GetComponent<Renderer>().material.SetColor("_EmissionColor", newColor);
         }
     }
