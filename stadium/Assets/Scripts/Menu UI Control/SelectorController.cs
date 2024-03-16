@@ -51,6 +51,7 @@ public class SelectorController : MonoBehaviour
         // Debug.Log("Lower");
     }
 
+    // The section name will be passed externally
     public void ChangeCurrentSection(string sectionName)
     {
         useSectionName = sectionName;
@@ -61,7 +62,7 @@ public class SelectorController : MonoBehaviour
 
     }
 
-    // Section Applier
+    // Easy way to activate or deactivate sections for section applier
     int toggleNumber = 0;
     public void ToggleCurrentSection()
     {
@@ -77,122 +78,39 @@ public class SelectorController : MonoBehaviour
         }
     }
 
-    
-    // To deactivate every other section except the one being affected
     public void DeactivateAllElse(string currentSection)
     {
-        GameObject[] allObjects = GameObject.FindObjectsOfType<GameObject>();
-
-        if (currentSection.Contains("Low"))
-        {
-            Transform lowerTransform = GameObject.Find("Lower Deck").transform;
-            foreach (Transform childTransform in lowerTransform)
-            {
-                if (childTransform.name != currentSection)
-                {
-                    childTransform.gameObject.SetActive(false);
-                }
-            }
-
-            if (GameObject.Find("Upper Deck") != null)
-            {
-                Transform upperTransform = GameObject.Find("Upper Deck").transform;
-                foreach (Transform childTransform in upperTransform)
-                {
-                    childTransform.gameObject.SetActive(false);
-                }
-            }
-            
-            if (GameObject.Find("Top Deck") != null)
-            {
-                Transform topTransform = GameObject.Find("Top Deck").transform;
-                foreach (Transform childTransform in topTransform)
-                {
-                    childTransform.gameObject.SetActive(false);
-                }
-            }
-
-        }
-        else if (currentSection.Contains("Upper"))
-        {
-            Transform lowerTransform = GameObject.Find("Lower Deck").transform;
-            foreach (Transform childTransform in lowerTransform)
-            {
-                childTransform.gameObject.SetActive(false);
-            }
-
-            Transform upperTransform = GameObject.Find("Upper Deck").transform;
-            foreach (Transform childTransform in upperTransform)
-            {
-                if (childTransform.name != currentSection)
-                {
-                    childTransform.gameObject.SetActive(false);
-                }
-            }
-
-            Transform topTransform = GameObject.Find("Top Deck").transform;
-            foreach (Transform childTransform in topTransform)
-            {
-                childTransform.gameObject.SetActive(false);
-            }
-        }
-        else
-        {
-            Transform lowerTransform = GameObject.Find("Lower Deck").transform;
-            foreach (Transform childTransform in lowerTransform)
-            {
-                childTransform.gameObject.SetActive(false);
-            }
-
-            Transform upperTransform = GameObject.Find("Upper Deck").transform;
-            foreach (Transform childTransform in upperTransform)
-            {
-                childTransform.gameObject.SetActive(false);
-            }
-
-            Transform topTransform = GameObject.Find("Top Deck").transform;
-            foreach (Transform childTransform in topTransform)
-            {
-                if (childTransform.name != currentSection)
-                {
-                    childTransform.gameObject.SetActive(false);
-                }
-            }
-        }
-        
+        DeactivateSection("Lower Deck", currentSection);
+        DeactivateSection("Upper Deck", currentSection);
+        DeactivateSection("Top Deck", currentSection);
     }
 
-    // To reactivate any deactivated sections
+    private void DeactivateSection(string sectionName, string currentSection)
+    {
+        Transform sectionTransform = GameObject.Find(sectionName).transform;
+        foreach (Transform childTransform in sectionTransform)
+        {
+            if (childTransform.name != currentSection)
+            {
+                childTransform.gameObject.SetActive(false);
+            }
+        }
+    }
+
     public void ReactivateSections()
     {
-        GameObject[] allObjects = GameObject.FindObjectsOfType<GameObject>();
+        ReactivateSection("Lower Deck");
+        ReactivateSection("Upper Deck");
+        ReactivateSection("Top Deck");
+    }
 
-        if (GameObject.Find("Lower Deck") != null)
+    private void ReactivateSection(string sectionName)
+    {
+        Transform sectionTransform = GameObject.Find(sectionName).transform;
+        foreach (Transform childTransform in sectionTransform)
         {
-            Transform lowerTransform = GameObject.Find("Lower Deck").transform;
-            foreach (Transform childTransform in lowerTransform)
-            {
-                childTransform.gameObject.SetActive(true);
-            }
-        }
-
-        if (GameObject.Find("Upper Deck") != null)
-        {
-            Transform upperTransform = GameObject.Find("Upper Deck").transform;
-            foreach (Transform childTransform in upperTransform)
-            {
-                childTransform.gameObject.SetActive(true);
-            }
-        }
-
-        if (GameObject.Find("Top Deck") != null)
-        {
-            Transform topTransform = GameObject.Find("Top Deck").transform;
-            foreach (Transform childTransform in topTransform)
-            {
-                childTransform.gameObject.SetActive(true);
-            }
+            childTransform.gameObject.SetActive(true);
         }
     }
-    
+
 }
