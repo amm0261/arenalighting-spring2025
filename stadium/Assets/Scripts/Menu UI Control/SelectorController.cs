@@ -80,21 +80,28 @@ public class SelectorController : MonoBehaviour
 
     public void DeactivateAllElse(string currentSection)
     {
-        DeactivateSection("Lower Deck", currentSection);
-        DeactivateSection("Upper Deck", currentSection);
-        DeactivateSection("Top Deck", currentSection);
+        if (currentSection != null)
+        {
+            DeactivateSection("Lower Deck", currentSection);
+            DeactivateSection("Upper Deck", currentSection);
+            DeactivateSection("Top Deck", currentSection);
+        }
     }
 
     private void DeactivateSection(string sectionName, string currentSection)
     {
-        Transform sectionTransform = GameObject.Find(sectionName).transform;
-        foreach (Transform childTransform in sectionTransform)
+        if (GameObject.Find(sectionName) != null) 
         {
-            if (childTransform.name != currentSection)
+            Transform sectionTransform = GameObject.Find(sectionName).transform;
+            foreach (Transform childTransform in sectionTransform)
             {
-                childTransform.gameObject.SetActive(false);
+                if (childTransform.name != currentSection)
+                {
+                    childTransform.gameObject.SetActive(false);
+                }
             }
         }
+        
     }
 
     public void ReactivateSections()
@@ -106,11 +113,20 @@ public class SelectorController : MonoBehaviour
 
     private void ReactivateSection(string sectionName)
     {
-        Transform sectionTransform = GameObject.Find(sectionName).transform;
-        foreach (Transform childTransform in sectionTransform)
+        GameObject sectionObject = GameObject.Find(sectionName);
+        if (sectionObject != null)
         {
-            childTransform.gameObject.SetActive(true);
+            Transform sectionTransform = sectionObject.transform;
+            foreach (Transform childTransform in sectionTransform)
+            {
+                childTransform.gameObject.SetActive(true);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Section object not found: " + sectionName);
         }
     }
+
 
 }
