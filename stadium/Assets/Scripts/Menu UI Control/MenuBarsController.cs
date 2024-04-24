@@ -7,10 +7,12 @@ public class MenuBarsController : MonoBehaviour
     public GameObject musicPanel;
     public GameObject intensityPanel;
     public GameObject selectorPanel;
+    public GameObject imagePanel;
     public Button colorButton;
     public Button intensityButton;
     public Button musicButton;
     public Button selectorButton;
+    public Button imageButton;
     public Color activeColor;
     public Color inactiveColor;
     public GameObject canvas;
@@ -22,12 +24,14 @@ public class MenuBarsController : MonoBehaviour
         musicPanel.SetActive(false);
         colorPanel.SetActive(false);
         selectorPanel.SetActive(false);
+        imagePanel.SetActive(false);
         activeColor = new Color(0.2509804f, 0.2509804f, 0.2509804f, 1.0f);
         inactiveColor = new Color(0.1921569f, 0.1921569f, 0.1921569f, 1.0f);
         colorButton.onClick.AddListener(OpenColorMenu);
         intensityButton.onClick.AddListener(OpenIntensityMenu);
         musicButton.onClick.AddListener(OpenMusicMenu);
         selectorButton.onClick.AddListener(OpenSelectorMenu);
+        imageButton.onClick.AddListener(OpenImageMenu);
     }
 
     // Update is called once per frame
@@ -66,6 +70,15 @@ public class MenuBarsController : MonoBehaviour
             selectorButton.GetComponent<Image>().color = inactiveColor;
         }
 
+        if (imagePanel.activeSelf)
+        {
+            imageButton.GetComponent<Image>().color = activeColor;
+        }
+        else
+        {
+            selectorButton.GetComponent<Image>().color = inactiveColor;
+        }
+
         if (Input.GetKeyDown(KeyCode.U))
         {
             canvas.SetActive(!canvas.activeSelf);
@@ -78,6 +91,7 @@ public class MenuBarsController : MonoBehaviour
         musicPanel.SetActive(false);
         selectorPanel.SetActive(false);
         colorPanel.SetActive(!colorPanel.activeSelf);
+        imagePanel.SetActive(false);
     }
 
     void OpenIntensityMenu()
@@ -86,6 +100,7 @@ public class MenuBarsController : MonoBehaviour
         musicPanel.SetActive(false);
         selectorPanel.SetActive(false);
         colorPanel.SetActive(false);
+        imagePanel.SetActive(false);
     }
 
     void OpenMusicMenu()
@@ -94,6 +109,7 @@ public class MenuBarsController : MonoBehaviour
         selectorPanel.SetActive(false);
         musicPanel.SetActive(!musicPanel.activeSelf);
         colorPanel.SetActive(false);
+        imagePanel.SetActive(false);
     }
 
     void OpenSelectorMenu()
@@ -102,5 +118,15 @@ public class MenuBarsController : MonoBehaviour
         musicPanel.SetActive(false);
         selectorPanel.SetActive(!selectorPanel.activeSelf);
         colorPanel.SetActive(false);
+        imagePanel.SetActive(false);
+    }
+
+    void OpenImageMenu()
+    {
+        intensityPanel.SetActive(false);
+        musicPanel.SetActive(false);
+        selectorPanel.SetActive(false);
+        colorPanel.SetActive(false);
+        imagePanel.SetActive(!imagePanel.activeSelf);
     }
 }
