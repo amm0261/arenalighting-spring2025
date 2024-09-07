@@ -4,13 +4,8 @@ Unity Project that creates virtual simulation of the arena light show as a demo 
 ### Sponsor
 [Mike Moody](mailto:musicmattersbookings@gmail.com)
 
-### Spring 2024 Team Developers
-- Griffin Herring.
-- Bowman Hill.
-- Brooke Hopton-Jones.
-- Jonghyun Jung.
-- Lyndsey Rice.
-- Olivia Smith.
+### Fall 2024 Team Developers
+- Tanner Showalter
 
 ### Skills required
 - Unity
