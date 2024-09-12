@@ -6,6 +6,8 @@ Unity Project that creates virtual simulation of the arena light show as a demo 
 
 ### Fall 2024 Team Developers
 - Tanner Showalter
+- Leo Hernandez-Rivera
+- Michael Richey
 
 ### Skills required
 - Unity
