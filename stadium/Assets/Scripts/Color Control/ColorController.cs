@@ -8,7 +8,7 @@
 
 using UnityEngine;
 using UnityEngine.UI;
-
+using TMPro;
 public class ColorController : MonoBehaviour
 {
     //Make sure to attach these Buttons in the Inspector
@@ -16,6 +16,7 @@ public class ColorController : MonoBehaviour
     public Toggle randomToggle;
     public InputField hexCodeInput;
     public InputField speedInput;
+    public TMP_Text errorMessage;
 
     Gradient gradient;
     GradientColorKey[] colorKey;
@@ -178,16 +179,26 @@ public class ColorController : MonoBehaviour
     {
         hexCodeColor = null;
 
-        if (hexCodeString == null || hexCodeString == "" || hexCodeString.Length != 6)
+        if (hexCodeString == null || hexCodeString == "")
         {
+            HideErrorMessage();
             return;
         }
+
+        if (hexCodeString.Length != 6)
+        {
+            ShowErrorMessage("Error: Inputs must be exactly 6 characters long.");
+            return;
+        }
+
         if (ColorUtility.TryParseHtmlString("#" + hexCodeString, out Color newColor))
         {
             hexCodeColor = newColor;
+            HideErrorMessage();
         }
         else
         {
+            ShowErrorMessage("Error:" + hexCodeString + " is not a valid hexadecimal value.");
             Debug.Log("Error: " + hexCodeString + " is not a valid hexadecimal value.");
         }
     }
@@ -230,6 +241,17 @@ public class ColorController : MonoBehaviour
             LED.GetComponent<Renderer>().material.color = newColor;
             LED.GetComponent<Renderer>().material.SetColor("_EmissionColor", newColor);
         }
+    }
+    //Displays error message when prompted by other method
+    void ShowErrorMessage(string message)
+    {
+        errorMessage.text = message;
+        errorMessage.gameObject.SetActive(true);
+    }
+    void HideErrorMessage()
+    {
+
+        errorMessage.gameObject.SetActive(false);
     }
 }
 
