@@ -177,14 +177,12 @@ public class ColorController : MonoBehaviour
     public void OnEditHexCodeString(string hexCodeString)
     {
         hexCodeColor = null;
-        if (hexCodeString == null || hexCodeString == "" || hexCodeString.Length != 8)
+
+        if (hexCodeString == null || hexCodeString == "" || hexCodeString.Length != 6)
         {
             return;
         }
-
-        Color newColor;
-        string htmlValue = "#" + hexCodeString;
-        if (ColorUtility.TryParseHtmlString(htmlValue, out newColor))
+        if (ColorUtility.TryParseHtmlString("#" + hexCodeString, out Color newColor))
         {
             hexCodeColor = newColor;
         }
