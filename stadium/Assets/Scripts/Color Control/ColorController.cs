@@ -151,6 +151,7 @@ public class ColorController : MonoBehaviour
     {
         // Debugging
         Debug.Log("Starting update function");
+        GetSectionLights();
         Debug.Log(leds[0].GetComponent<Renderer>().material.color);
         Debug.Log(leds[0].GetComponent<Renderer>().material.GetColor("_EmissionColor"));
 

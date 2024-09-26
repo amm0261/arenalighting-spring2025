@@ -1,10 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic; // Import the namespace for List<T>
-
+using System.Linq; // For Contains method for arrays
 
 public class SelectorController : MonoBehaviour
 {
+    public GameObject allDecks;
     public GameObject TopDeck;
     public GameObject UpperDeck;
     public GameObject LowerDeck;
@@ -16,6 +17,9 @@ public class SelectorController : MonoBehaviour
     public GameObject CurrentSection;
     public Toggle CurrentToggle;
     public bool toggleState = false;
+
+    // A replacement to useSectionName, eventually
+    public string[] useSectionNames;
 
     // Note: testing section applier
     public GameObject[] sectionLEDs;
@@ -60,11 +64,11 @@ public class SelectorController : MonoBehaviour
     {
         if (!toggleState)
         {
-            DeactivateAllElse(useSectionName);
+            DeactivateAllElse(useSectionNames);
         }
         else
         {
-            ReactivateSections(useSectionName);
+            ReactivateSections(useSectionNames);
         }
         toggleState = !toggleState;
     }
@@ -112,81 +116,36 @@ public class SelectorController : MonoBehaviour
         } 
     }
 
-
-    public void DeactivateAllElse(string currentSection)
+    public void DeactivateAllElse(string[] currentSections)
     {
-        if (currentSection.ToLower().Contains("low"))
-        {
-            ToggleTopDeck();
-            ToggleUpperDeck();
-            DeactivateSection("Lower Deck", currentSection);
-        } else if (currentSection.ToLower().Contains("upper"))
-        {
-            ToggleTopDeck();
-            ToggleLowerDeck();
-            DeactivateSection("Upper Deck", currentSection);
-        } else
-        {
-            ToggleUpperDeck();
-            ToggleLowerDeck();
-            DeactivateSection("Top Deck", currentSection);
-        }
-    }
-
-    private void DeactivateSection(string sectionName, string currentSection)
-    {
-        if (GameObject.Find(sectionName) != null) 
-        {
-            Transform sectionTransform = GameObject.Find(sectionName).transform;
-            foreach (Transform childTransform in sectionTransform)
-            {
-                if (childTransform.name != currentSection)
+        Debug.Log("Deactivating multiple sections!");
+        // loop through every section
+        foreach (Transform deck in allDecks.transform) {
+            foreach (Transform iterSection in deck) {
+                if (!currentSections.Contains(iterSection.name))
                 {
-                    childTransform.gameObject.SetActive(false);
+                    iterSection.gameObject.SetActive(false);
+                }
+                else 
+                {
+                    Debug.Log(deck.name + " " + iterSection.name);
                 }
             }
         }
-        
     }
 
-    public void ReactivateSections(string currentSection)
-    {
-        if (currentSection.ToLower().Contains("low"))
-        {
-            ToggleTopDeck();
-            ToggleUpperDeck();
-            ReactivateSection("Lower Deck");
-        }
-        else if (currentSection.ToLower().Contains("upper"))
-        {
-            ToggleTopDeck();
-            ToggleLowerDeck();
-            ReactivateSection("Upper Deck");
-        }
-        else
-        {
-            ToggleUpperDeck();
-            ToggleLowerDeck();
-            ReactivateSection("Top Deck");
-        }
-    }
-
-    private void ReactivateSection(string sectionName)
-    {
-        GameObject sectionObject = GameObject.Find(sectionName);
-        if (sectionObject != null)
-        {
-            Transform sectionTransform = sectionObject.transform;
-            foreach (Transform childTransform in sectionTransform)
-            {
-                childTransform.gameObject.SetActive(true);
+    public void ReactivateSections(string[] currentSections) {
+        Debug.Log("Reactivating multiple sections!");
+        // loop through every section
+        foreach (Transform deck in allDecks.transform) {
+            foreach (Transform iterSection in deck) {
+                if (!currentSections.Contains(iterSection.name))
+                {
+                    iterSection.gameObject.SetActive(true);
+                    Debug.Log(deck.name + " " + iterSection.name);
+                }
             }
         }
-        else
-        {
-            Debug.LogWarning("Section object not found: " + sectionName);
-        }
     }
-
 
 }
