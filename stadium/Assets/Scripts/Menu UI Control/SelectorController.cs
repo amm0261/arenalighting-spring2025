@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic; // Import the namespace for List<T>
-using System.Linq; // For Contains method for arrays
 
 public class SelectorController : MonoBehaviour
 {
@@ -19,7 +18,7 @@ public class SelectorController : MonoBehaviour
     public bool toggleState = false;
 
     // A replacement to useSectionName, eventually
-    public string[] useSectionNames;
+    public List<string> useSectionNames;
 
     // Note: testing section applier
     public GameObject[] sectionLEDs;
@@ -57,6 +56,12 @@ public class SelectorController : MonoBehaviour
     {
         LowerDeck.SetActive(!LowerDeck.activeSelf);
         // Debug.Log("Lower");
+    }
+
+    // Take input from SectionSelectionInput, then check if each section actually exists
+    public void CheckSectionValidity()
+    {   
+     Debug.Log("ADD FUNCTIONALITY");   
     }
 
     // Easy way to activate or deactivate sections for section applier
@@ -116,7 +121,7 @@ public class SelectorController : MonoBehaviour
         } 
     }
 
-    public void DeactivateAllElse(string[] currentSections)
+    public void DeactivateAllElse(List<string> currentSections)
     {
         Debug.Log("Deactivating multiple sections!");
         // loop through every section
@@ -126,15 +131,11 @@ public class SelectorController : MonoBehaviour
                 {
                     iterSection.gameObject.SetActive(false);
                 }
-                else 
-                {
-                    Debug.Log(deck.name + " " + iterSection.name);
-                }
             }
         }
     }
 
-    public void ReactivateSections(string[] currentSections) {
+    public void ReactivateSections(List<string> currentSections) {
         Debug.Log("Reactivating multiple sections!");
         // loop through every section
         foreach (Transform deck in allDecks.transform) {
@@ -142,7 +143,6 @@ public class SelectorController : MonoBehaviour
                 if (!currentSections.Contains(iterSection.name))
                 {
                     iterSection.gameObject.SetActive(true);
-                    Debug.Log(deck.name + " " + iterSection.name);
                 }
             }
         }
