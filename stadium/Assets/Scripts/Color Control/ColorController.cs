@@ -23,6 +23,9 @@ public class ColorController : MonoBehaviour
     GradientAlphaKey[] alphaKey;
     Color? hexCodeColor;
 
+    private bool colorNeedsUpdate = false;
+    private Color lastColor;
+
     [SerializeField]
     public bool fading;
     [SerializeField]
@@ -36,6 +39,8 @@ public class ColorController : MonoBehaviour
     [SerializeField]
     bool randomizing;
 
+    private GameObject[] allLEDs;
+
     void Start()
     {
         fadeFrame = 0.0f;
@@ -48,13 +53,22 @@ public class ColorController : MonoBehaviour
         });
 
         randomizing = false;
+        UpdateAllLEDsCache(); // Initialize the cache of all LEDs
     }
 
     void Update()
     {
+        if (fading)
+        {
         GradientColorFade();
+        }
+        // Apply color updates if there is a need
+        else if (colorNeedsUpdate)
+        {
+        ApplyColorUpdates(lastColor); // Use the last set color
+        colorNeedsUpdate = false; // Reset the flag after applying
+        }
     }
-
     public void OnSetSpeed(string speed)
     {
         fadeDuration = float.Parse(speed);
@@ -77,6 +91,11 @@ public class ColorController : MonoBehaviour
         }
     }
 
+    // Cache all LEDs
+    void UpdateAllLEDsCache()
+    {
+        allLEDs = GetAllLEDs();
+    }
     GameObject[] GetAllLEDs()
     {
         string ledTag;
@@ -84,49 +103,29 @@ public class ColorController : MonoBehaviour
         return GameObject.FindGameObjectsWithTag(ledTag);
     }
 
-    void GradientColorFade()
-    {
-        GameObject[] allLEDs = GetAllLEDs();
-        if (fading)
-        {
-            fadeTime += Time.deltaTime;
-            fadeFrame = fadeTime / fadeDuration;
-            Color frameColor = gradient.Evaluate(fadeFrame);
-            if (fadeTime >= fadeDuration)
-            {
-                fading = false;
-                frameColor = gradient.Evaluate(1.0f);
-            }
-
-            foreach (GameObject LED in allLEDs)
-            {
-                LED.GetComponent<Renderer>().material.color = frameColor;
-                LED.GetComponent<Renderer>().material.SetColor("_EmissionColor", frameColor);
-            }
-        }
-    }
-
     void UpdateLEDColors(GameObject[] leds, Color newColor)
     {
+        lastColor = newColor;
+        colorNeedsUpdate = true;
         if (!fadeToggle.isOn)
         {
-            foreach (GameObject LED in leds)
-            {
-                LED.GetComponent<Renderer>().material.color = newColor;
-                LED.GetComponent<Renderer>().material.SetColor("_EmissionColor", newColor);
-            }
+            ApplyColorUpdates(newColor);
         }
         else
         {
-            GameObject firstLED = leds[0];
-            Color startCol = firstLED.GetComponent<Renderer>().material.color;
-            Color endCol = newColor;
-            gradient = new Gradient();
+            StartFading(leds, newColor);
 
+        }
+    }
+    void StartFading(GameObject[] leds, Color endColor)
+    {
+        GameObject firstLED = leds[0];
+            Color startCol = firstLED.GetComponent<Renderer>().material.color;
+            gradient = new Gradient();
             colorKey = new GradientColorKey[2];
             colorKey[0].color = startCol;
             colorKey[0].time = 0.0f;
-            colorKey[1].color = endCol;
+            colorKey[1].color = endColor;
             colorKey[1].time = fadeDuration;
 
             alphaKey = new GradientAlphaKey[2];
@@ -136,13 +135,44 @@ public class ColorController : MonoBehaviour
             alphaKey[1].time = fadeDuration;
 
             gradient.SetKeys(colorKey, alphaKey);
-            fadeEnd = endCol;
+            fadeEnd = endColor;
             fadeFrame = 0.0f;
             fadeTime = 0.0f;
             fading = true;
+    }
+    void GradientColorFade()
+    {
+        var startTime = Time.realtimeSinceStartup;
+
+        if (fading)
+        {
+            fadeTime += Time.deltaTime;
+            fadeFrame = fadeTime / fadeDuration;
+            Color frameColor = gradient.Evaluate(fadeFrame);
+
+            ApplyColorUpdates(frameColor);
+
+            if (fadeTime >= fadeDuration)
+            {
+                fading = false;
+                ApplyColorUpdates(gradient.Evaluate(1.0f));
+            }
         }
+        var elapsedTime = Time.realtimeSinceStartup - startTime;
+        Debug.Log($"Gradient calculations took: {elapsedTime * 1000} ms");
     }
 
+    void ApplyColorUpdates(Color colorToApply)
+    {
+        if (allLEDs == null || allLEDs.Length == 0) return;
+
+        foreach (GameObject LED in allLEDs)
+        {
+            Renderer ledRenderer = LED.GetComponent<Renderer>();
+            ledRenderer.material.color = colorToApply;
+            ledRenderer.material.SetColor("_EmissionColor", colorToApply);
+        }
+    }
     public void OnSetBlue1()
     {
         // string htmlValue = "#03244d";

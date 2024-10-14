@@ -22,7 +22,7 @@ public class SelectorController : MonoBehaviour
         UpperToggle.onValueChanged.AddListener(delegate { ToggleUpperDeck(); });
         LowerToggle.onValueChanged.AddListener(delegate { ToggleLowerDeck(); });
 
-        // NEW CODE 
+        // NEW CODE
         CurrentToggle.onValueChanged.AddListener(delegate { ToggleCurrentSection(); });
 
     }
