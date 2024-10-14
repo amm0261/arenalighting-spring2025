@@ -9,16 +9,19 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PerformanceController : MonoBehaviour
+public class PerformanceControl : MonoBehaviour
 {
-    //Make sure to attach these Buttons in the Inspector
-    public Toggle performanceToggle;
+    private GameObject[] allLEDs;
+    private bool isHalfDisabled = false;
 
     void Start()
     {
-        // Attach the button click event to the method that disables half the LEDs
-        disableHalfButton.onValueChanged.AddListener(delegate { DisableHalfLEDs(); });
+        // Cache all LED GameObjects at the start
+        allLEDs = GetAllLEDs();
+        
+        // Attach the button click event to the method
     }
+
 
     GameObject[] GetAllLEDs()
     {
@@ -27,20 +30,28 @@ public class PerformanceController : MonoBehaviour
         return GameObject.FindGameObjectsWithTag(ledTag);
     }
 
-    void DisableHalfLEDs()
+    public void DisableHalfLEDs()
     {
-        //Get all lights
-        GameObject[] allLEDs = GetAllLEDs();
+        //refresh LEDs
+        GameObject[] allCopy = allLEDs;
+
+        if (allCopy == null || allCopy.Length == 0)
+        {
+            Debug.LogWarning("No LEDs found!");
+            return;
+        }
 
         // Loop through the lights
-        for (int i = 0; i < allLEDs.Length; i++)
+        for (int i = 0; i < allCopy.Length; i++)
         {
             // Disable every second light
-            if (i % 2 == 1)
+            if (i % 2 == 0)
             {
-                allLEDs[i].SetActive(false);  // Enable or disable based on the passed bool
+                allCopy[i].SetActive(!isHalfDisabled);
             }
         }
+
+        isHalfDisabled = !isHalfDisabled;
     }
 }
 
