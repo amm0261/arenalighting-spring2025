@@ -1,8 +1,14 @@
 {
   "ExpandedNodes": [
     "",
-    "\\stadium"
+    "\\assets",
+    "\\assets\\camera_control_users_guide",
+    "\\stadium",
+    "\\stadium\\Assets",
+    "\\stadium\\Assets\\Scripts",
+    "\\stadium\\Assets\\Scripts\\Menu UI Control",
+    "\\stadium\\Assets\\Scripts\\Performance Control"
   ],
-  "SelectedNode": "\\stadium\\.gitconfig.txt",
+  "SelectedNode": "\\stadium\\Assets\\Scripts\\Performance Control\\PerformanceControl.cs",
   "PreviewInSolutionExplorer": false
 }
