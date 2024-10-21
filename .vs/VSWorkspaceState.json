@@ -5,11 +5,10 @@
     "\\assets\\camera_control_users_guide",
     "\\stadium",
     "\\stadium\\Assets",
-    "\\stadium\\Assets\\Art\\Models\\AuburnArena",
-    "\\stadium\\Assets\\Art\\Models\\AuburnArena\\Auburn-Stadium-Part3",
     "\\stadium\\Assets\\Scripts",
-    "\\stadium\\Assets\\Scripts\\Menu UI Control"
+    "\\stadium\\Assets\\Scripts\\Menu UI Control",
+    "\\stadium\\Assets\\Scripts\\Performance Control"
   ],
-  "SelectedNode": "\\stadium\\Assets\\Scripts\\Menu UI Control\\SelectorController.cs",
+  "SelectedNode": "\\stadium\\Assets\\Scripts\\Performance Control\\PerformanceControl.cs",
   "PreviewInSolutionExplorer": false
 }
