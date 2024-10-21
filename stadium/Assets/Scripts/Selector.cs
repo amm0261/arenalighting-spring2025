@@ -30,7 +30,7 @@ public class Selector : MonoBehaviour
         bool selector = false;
         if (selector == true)
         {
-            string[] sections = new string[]{""};
+            string[] sections = new string[]{};
             // For example: new string[]{"Section 16", "Section 19"};
             getSectionLights(sections);
         }

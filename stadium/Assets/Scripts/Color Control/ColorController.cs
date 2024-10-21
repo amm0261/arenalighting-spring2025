@@ -44,6 +44,11 @@ public class ColorController : MonoBehaviour
 
     private GameObject[] allLEDs;           // Array to hold LED GameObjects for caching
 
+    // Note: testing for section applier
+    public bool sectionToggle;
+    public GameObject[] sectionLEDs;
+    public SelectorController selectorController;
+
     void Start()
     {
         fadeFrame = 0.0f;
@@ -56,21 +61,28 @@ public class ColorController : MonoBehaviour
             OnContinualRandomToggle(randomToggle.isOn);
         });
 
-        isRandomizing = false;
-        UpdateAllLEDsCache(); // Initialize the cache of all LEDs
+        randomizing = false;
+
+        // Find the GameObject with the SelectorController component
+        GameObject selectorControllerObject = GameObject.Find("SelectorController");
+
+        // Check if the GameObject was found
+        if (selectorControllerObject != null)
+        {
+            // Get the SelectorController component from the GameObject
+            selectorController = selectorControllerObject.GetComponent<SelectorController>();
+        }
+
+        // Check whether current section is checked or not (also happens in update)
+        checkToggle();
     }
     void Update()
     {
-        // Update colors if fading is in progress or if colorNeedsUpdate is true
-        if (isFading)
-        {
-            ColorFade();
-        }
-        else if (colorNeedsUpdate)
-        {
-            ApplyColorUpdates(lastColor); // Use the last set color
-            colorNeedsUpdate = false; // Reset the flag after applying
-        }
+        GradientColorFade();
+
+        // Note: testing for section applier
+        checkToggle();
+        GetSectionLights();
     }
     // Handles UI Input for fade time
     public void OnSetFadeTime(string fadeTime)
@@ -107,13 +119,57 @@ public class ColorController : MonoBehaviour
         string ledTag = "LED"; // Tag for identifying LED objects
         return GameObject.FindGameObjectsWithTag(ledTag); // Returns all GameObjects with the LED tag
     }
-    //Updates the LEDs to a new color.
+
+    // Note: testing for section applier
+    public void GetSectionLights()
+    {
+        sectionLEDs = selectorController.sectionLEDs;
+    }
+
+    void checkToggle()
+    {
+        if (selectorController.CurrentToggle.isOn)
+        {
+            sectionToggle = true;
+        } else
+        {
+            sectionToggle = false;
+        }
+    }
+
+    void GradientColorFade()
+    {
+        GameObject[] allLEDs;
+        if (sectionToggle) { allLEDs = sectionLEDs; }
+        else { allLEDs = GetAllLEDs(); }
+
+        if (fading)
+        {
+            fadeTime += Time.deltaTime;
+            fadeFrame = fadeTime / fadeDuration;
+            Color frameColor = gradient.Evaluate(fadeFrame);
+            if (fadeTime >= fadeDuration)
+            {
+                fading = false;
+                frameColor = gradient.Evaluate(1.0f);
+            }
+
+            foreach (GameObject LED in allLEDs)
+            {
+                LED.GetComponent<Renderer>().material.color = frameColor;
+                LED.GetComponent<Renderer>().material.SetColor("_EmissionColor", frameColor);
+            }
+        }
+    }
+
     void UpdateLEDColors(GameObject[] leds, Color newColor)
     {
-        lastColor = newColor; // Store the new color
-        colorNeedsUpdate = true; // Set flag to update color in the next frame
+        // Debugging
+        Debug.Log("Starting update function");
+        GetSectionLights();
+        Debug.Log(leds[0].GetComponent<Renderer>().material.color);
+        Debug.Log(leds[0].GetComponent<Renderer>().material.GetColor("_EmissionColor"));
 
-        // If fade is enabled, start fading, otherwise apply color directly
         if (!fadeToggle.isOn)
         {
             ApplyColorUpdates(newColor); // Directly apply color
@@ -182,15 +238,29 @@ public class ColorController : MonoBehaviour
             ledRenderer.material.color = colorToApply; // Set material color
             ledRenderer.material.SetColor("_EmissionColor", colorToApply); // Set emission color
         }
+
+        // Debugging
+        Debug.Log("Ending update function");
+        Debug.Log(leds[0].GetComponent<Renderer>().material.color);
+        Debug.Log(leds[0].GetComponent<Renderer>().material.GetColor("_EmissionColor"));
+
     }
 
     // Set predefined colors for LEDS
     public void OnSetBlue1()
     {
         // string htmlValue = "#03244d";
-        Color newColor = new Color(0.012f, 0.141f, 0.302f, .500f); // Define color for Blue 1
-        GameObject[] allLEDs = GetAllLEDs();
-        UpdateLEDColors(allLEDs, newColor); // Update color
+        Color newColor = new Color(0.012f, 0.141f, 0.302f, .500f);
+
+        // All or current section only
+        if (sectionToggle)
+        {
+            UpdateLEDColors(sectionLEDs, newColor);
+        } else
+        {
+            GameObject[] allLEDs = GetAllLEDs();
+            UpdateLEDColors(allLEDs, newColor);
+        }
     }
 
     public void OnSetBlue2()

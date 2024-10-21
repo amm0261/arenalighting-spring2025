@@ -921,6 +921,7 @@ Transform:
   - {fileID: 4869285608208205088}
   - {fileID: 5133127958784842217}
   - {fileID: 2082678234792505704}
+  - {fileID: 5803535721270273350}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3042,6 +3043,66 @@ Transform:
   m_Father: {fileID: 2934327233166804419}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8420333796273484372
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5803535721270273350}
+  - component: {fileID: 6893523444117697791}
+  - component: {fileID: 799719374399031416}
+  m_Layer: 0
+  m_Name: Collider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5803535721270273350
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8420333796273484372}
+  m_LocalRotation: {x: 0.02359308, y: -0.0748277, z: -0.29977876, w: 0.950777}
+  m_LocalPosition: {x: -16.422, y: 2.542, z: -16.842}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 605287096640361715}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: -9, z: -35}
+--- !u!65 &6893523444117697791
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8420333796273484372}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 8, y: 0.5, z: 3.4}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &799719374399031416
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8420333796273484372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f393ce28d3d3864f9b2274f5660b912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selectorController: {fileID: 0}
+  selectorControllerScript: {fileID: 0}
+  sectionName: 
 --- !u!1 &8662832243794472469
 GameObject:
   m_ObjectHideFlags: 0

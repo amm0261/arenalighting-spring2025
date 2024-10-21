@@ -6,6 +6,7 @@ TagManager:
   tags:
   - LED
   - Camera Two
+  - test
   layers:
   - Default
   - TransparentFX
