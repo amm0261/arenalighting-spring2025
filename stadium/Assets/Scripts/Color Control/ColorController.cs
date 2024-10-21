@@ -61,7 +61,7 @@ public class ColorController : MonoBehaviour
             OnContinualRandomToggle(randomToggle.isOn);
         });
 
-        randomizing = false;
+        isRandomizing = false;
 
         // Find the GameObject with the SelectorController component
         GameObject selectorControllerObject = GameObject.Find("SelectorController");
@@ -78,8 +78,10 @@ public class ColorController : MonoBehaviour
     }
     void Update()
     {
+        if (isFading)
+        {
         GradientColorFade();
-
+        }
         // Note: testing for section applier
         checkToggle();
         GetSectionLights();
@@ -143,14 +145,14 @@ public class ColorController : MonoBehaviour
         if (sectionToggle) { allLEDs = sectionLEDs; }
         else { allLEDs = GetAllLEDs(); }
 
-        if (fading)
+        if (isFading)
         {
             fadeTime += Time.deltaTime;
             fadeFrame = fadeTime / fadeDuration;
             Color frameColor = gradient.Evaluate(fadeFrame);
             if (fadeTime >= fadeDuration)
             {
-                fading = false;
+                isFading = false;
                 frameColor = gradient.Evaluate(1.0f);
             }
 
@@ -241,8 +243,8 @@ public class ColorController : MonoBehaviour
 
         // Debugging
         Debug.Log("Ending update function");
-        Debug.Log(leds[0].GetComponent<Renderer>().material.color);
-        Debug.Log(leds[0].GetComponent<Renderer>().material.GetColor("_EmissionColor"));
+        Debug.Log(allLEDs[0].GetComponent<Renderer>().material.color);
+        Debug.Log(allLEDs[0].GetComponent<Renderer>().material.GetColor("_EmissionColor"));
 
     }
 
