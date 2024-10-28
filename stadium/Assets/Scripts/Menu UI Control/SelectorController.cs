@@ -23,6 +23,8 @@ public class SelectorController : MonoBehaviour
     // Note: testing section applier
     public GameObject[] sectionLEDs;
 
+    public GameObject[] activeLEDs;
+
     // Start is called before the first frame update
     void Start()
     {
