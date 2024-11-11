@@ -8,32 +8,41 @@
 
 using UnityEngine;
 using UnityEngine.UI;
-
+using TMPro;
 public class ColorController : MonoBehaviour
 {
-    //Make sure to attach these Buttons in the Inspector
-    public Toggle fadeToggle;
-    public Toggle randomToggle;
-    public InputField hexCodeInput;
-    public InputField speedInput;
+    // UI Elements
+    // Make sure to attach these Buttons in the Inspector
+    public Toggle fadeToggle;       // Toggle for enabling and disabling fading
+    public Toggle randomToggle;     // Toggle for enable and disabling random color generation
+    public InputField hexCodeInput; // Input for hex code color codes
+    public InputField fadeTimeInput;   // Input for duration of fade for color crossfade
+    public TMP_Text errorMessage;       // Text field for displaying error messages
 
+    // Gradient properties
     Gradient gradient;
     GradientColorKey[] colorKey;
     GradientAlphaKey[] alphaKey;
-    Color? hexCodeColor;
+    Color? hexCodeColor;    // Stores hex color values
 
+    // State Variables
+    private bool colorNeedsUpdate = false;  // Flag to check if color needs to be updated.
+    private Color lastColor;                // Stores the last color that was applied to the LEDs.
+    bool isRandomizing;                     // Flag to check if random color generation is enabled
+    public bool isFading;                   // Flag to check if a color fade is in progress
+
+    // Fade properties
     [SerializeField]
-    public bool fading;
+    public Color fadeEndColor;              // Color that the fade will end on
     [SerializeField]
-    public Color fadeEnd;
+    public float fadeFrame;                 // Current frame of the fade
     [SerializeField]
-    public float fadeFrame;
+    public float fadeDuration = 1.0f;       // Duration of the fade in seconds
     [SerializeField]
-    public float fadeDuration;
-    [SerializeField]
-    float fadeTime;
-    [SerializeField]
-    bool randomizing;
+    float fadeTime;                         // Time spent fading
+
+
+    private GameObject[] allLEDs;           // Array to hold LED GameObjects for caching
 
     // Note: testing for section applier
     public bool sectionToggle;
@@ -45,13 +54,14 @@ public class ColorController : MonoBehaviour
         fadeFrame = 0.0f;
         fadeDuration = 1.0f;
 
+        // Sets up listeners for UI inputs
         hexCodeInput.onEndEdit.AddListener(OnEditHexCodeString);
-        speedInput.onEndEdit.AddListener(OnSetSpeed);
+        fadeTimeInput.onEndEdit.AddListener(OnSetFadeTime);
         randomToggle.onValueChanged.AddListener(delegate {
             OnContinualRandomToggle(randomToggle.isOn);
         });
 
-        randomizing = false;
+        isRandomizing = false;
 
         // Find the GameObject with the SelectorController component
         GameObject selectorControllerObject = GameObject.Find("SelectorController");
@@ -66,43 +76,50 @@ public class ColorController : MonoBehaviour
         // Check whether current section is checked or not (also happens in update)
         checkToggle();
     }
-
     void Update()
     {
+        if (isFading)
+        {
         GradientColorFade();
-
+        }
         // Note: testing for section applier
         checkToggle();
         GetSectionLights();
     }
-
-    public void OnSetSpeed(string speed)
+    // Handles UI Input for fade time
+    public void OnSetFadeTime(string fadeTime)
     {
-        fadeDuration = float.Parse(speed);
+        fadeDuration = float.Parse(fadeTime); // Sets fade duration based on input
     }
 
     public void OnContinualRandomToggle(bool toggleState)
     {
+        // Start or stop random color geenration based on toggle state
         if (toggleState)
         {
-            if (!randomizing)
+            if (!isRandomizing)
             {
-                InvokeRepeating("SetRandom", 0.0f, 0.5f);
-                randomizing = true;
+                InvokeRepeating("SetRandom", 0.0f, 0.5f); // Calls SetRandom every 0.5 seconds
+                isRandomizing = true; // Updates state to ensure continual randomized colors
             }
         }
         else
         {
-            CancelInvoke();
-            randomizing = false;
+            CancelInvoke(); // Stop random color updates
+            isRandomizing = false; // Updates state to prevent additional color randomization.
         }
     }
 
+    // LED Management
+    // Handles updating the LED cache.
+    void UpdateAllLEDsCache()
+    {
+        allLEDs = GetAllLEDs(); // Populates array with all LEDs in the scene. This is cached for performance reasons.
+    }
     GameObject[] GetAllLEDs()
     {
-        string ledTag;
-        ledTag = "LED";
-        return GameObject.FindGameObjectsWithTag(ledTag);
+        string ledTag = "LED"; // Tag for identifying LED objects
+        return GameObject.FindGameObjectsWithTag(ledTag); // Returns all GameObjects with the LED tag
     }
 
     // Note: testing for section applier
@@ -127,15 +144,15 @@ public class ColorController : MonoBehaviour
         GameObject[] allLEDs;
         if (sectionToggle) { allLEDs = sectionLEDs; }
         else { allLEDs = GetAllLEDs(); }
-        
-        if (fading)
+
+        if (isFading)
         {
             fadeTime += Time.deltaTime;
             fadeFrame = fadeTime / fadeDuration;
             Color frameColor = gradient.Evaluate(fadeFrame);
             if (fadeTime >= fadeDuration)
             {
-                fading = false;
+                isFading = false;
                 frameColor = gradient.Evaluate(1.0f);
             }
 
@@ -157,45 +174,81 @@ public class ColorController : MonoBehaviour
 
         if (!fadeToggle.isOn)
         {
-            foreach (GameObject LED in leds)
-            {
-                LED.GetComponent<Renderer>().material.color = newColor;
-                LED.GetComponent<Renderer>().material.SetColor("_EmissionColor", newColor);
-            }
+            ApplyColorUpdates(newColor); // Directly apply color
         }
         else
         {
-            GameObject firstLED = leds[0];
-            Color startCol = firstLED.GetComponent<Renderer>().material.color;
-            Color endCol = newColor;
-            gradient = new Gradient();
+            StartFading(leds, newColor); // Start fading process
 
-            colorKey = new GradientColorKey[2];
-            colorKey[0].color = startCol;
-            colorKey[0].time = 0.0f;
-            colorKey[1].color = endCol;
-            colorKey[1].time = fadeDuration;
+        }
+    }
+    void StartFading(GameObject[] leds, Color endColor)
+    {
+        // Prepare gradient for fade effect
+        GameObject firstLED = leds[0];
+            Color startColor = firstLED.GetComponent<Renderer>().material.color; // Gets current color of the first LED as the start color for the fade
+            gradient = new Gradient(); // Initialize gradient
+            colorKey = new GradientColorKey[2]; // Set up color keys
+            colorKey[0].color = startColor; // Start color
+            colorKey[0].time = 0.0f; // At time 0.0 seconds
+            colorKey[1].color = endColor; // End color
+            colorKey[1].time = fadeDuration; // At time equal to fade duration
 
-            alphaKey = new GradientAlphaKey[2];
-            alphaKey[0].alpha = 0.5f;
-            alphaKey[0].time = 0.0f;
-            alphaKey[1].alpha = 0.5f;
-            alphaKey[1].time = fadeDuration;
+            alphaKey = new GradientAlphaKey[2]; // Set up alpha keys
+            alphaKey[0].alpha = 0.5f; // Start alpha
+            alphaKey[0].time = 0.0f; // At time 0.0 seconds
+            alphaKey[1].alpha = 0.5f; // End alpha
+            alphaKey[1].time = fadeDuration; // At fade duration
 
-            gradient.SetKeys(colorKey, alphaKey);
-            fadeEnd = endCol;
-            fadeFrame = 0.0f;
-            fadeTime = 0.0f;
-            fading = true;
+            gradient.SetKeys(colorKey, alphaKey); // Set gradient keys
+            fadeEndColor = endColor; // Set end color for fading
+            fadeFrame = 0.0f; // Reset fade frame
+            fadeTime = 0.0f;  // Reset fade time
+            isFading = true;  // Set fade flag to true to start fading process
+    }
+    void ColorFade()
+    {
+        var startTime = Time.realtimeSinceStartup; // Measure time taken for fading calculations
+
+        if (isFading)
+        {
+            fadeTime += Time.deltaTime; // Increment fade time
+            fadeFrame = fadeTime / fadeDuration; // Calculate fade frame based on time and duration
+            Color frameColor = gradient.Evaluate(fadeFrame); // Get color for current frame
+
+            ApplyColorUpdates(frameColor); // Apply the calculated color
+
+            // Check if fade duration has been completed
+            if (fadeTime >= fadeDuration)
+            {
+                isFading = false; // Reset fading flag
+                ApplyColorUpdates(gradient.Evaluate(1.0f)); // Apply final color
+            }
+        }
+        var elapsedTime = Time.realtimeSinceStartup - startTime; // Calculate elapsed time for fade calculations
+        Debug.Log($"Gradient calculations took: {elapsedTime * 1000} ms"); //log time taken for performance monitoring
+    }
+
+    void ApplyColorUpdates(Color colorToApply)
+    {
+        //Apply color to all LEDs in the array
+        if (allLEDs == null || allLEDs.Length == 0) return; // Check if LED array is valid
+
+        foreach (GameObject LED in allLEDs)
+        {
+            Renderer ledRenderer = LED.GetComponent<Renderer>(); // Get renderer of the LED
+            ledRenderer.material.color = colorToApply; // Set material color
+            ledRenderer.material.SetColor("_EmissionColor", colorToApply); // Set emission color
         }
 
         // Debugging
         Debug.Log("Ending update function");
-        Debug.Log(leds[0].GetComponent<Renderer>().material.color);
-        Debug.Log(leds[0].GetComponent<Renderer>().material.GetColor("_EmissionColor"));
+        Debug.Log(allLEDs[0].GetComponent<Renderer>().material.color);
+        Debug.Log(allLEDs[0].GetComponent<Renderer>().material.GetColor("_EmissionColor"));
 
     }
 
+    // Set predefined colors for LEDS
     public void OnSetBlue1()
     {
         // string htmlValue = "#03244d";
@@ -215,54 +268,65 @@ public class ColorController : MonoBehaviour
     public void OnSetBlue2()
     {
         // string htmlValue = "#03244d";
-        Color newColor =  new Color(0.2862745f, 0.4313726f, 0.6117647f, .5f);
+        Color newColor =  new Color(0.2862745f, 0.4313726f, 0.6117647f, .5f);  // Define color for Blue 2
         GameObject[] allLEDs = GetAllLEDs();
-        UpdateLEDColors(allLEDs, newColor);
+        UpdateLEDColors(allLEDs, newColor); // Update color
     }
 
     public void OnSetOrange1()
     {
         // string htmlValue = "#03244d";
-        Color newColor = new Color(0.8666667f, 0.3333333f, 0.04705882f, .5f);
+        Color newColor = new Color(0.8666667f, 0.3333333f, 0.04705882f, .5f);  // Define color for Orange 1
         GameObject[] allLEDs = GetAllLEDs();
-        UpdateLEDColors(allLEDs, newColor);
+        UpdateLEDColors(allLEDs, newColor); // Update color
     }
 
     public void OnSetOrange2()
     {
         // string htmlValue = "#03244d";
-        Color newColor = new Color(0.9647059f, 0.5019608f, 0.1490196f, .5f);
+        Color newColor = new Color(0.9647059f, 0.5019608f, 0.1490196f, .5f); // Define color for Orange 2
         GameObject[] allLEDs = GetAllLEDs();
-        UpdateLEDColors(allLEDs, newColor);
+        UpdateLEDColors(allLEDs, newColor); // Update color
     }
 
+    // Handle editing the hex code color codes
     public void OnEditHexCodeString(string hexCodeString)
     {
-        hexCodeColor = null;
-        if (hexCodeString == null || hexCodeString == "" || hexCodeString.Length != 8)
+        hexCodeColor = null; // Reset hex color
+        // Validates hex input
+        if (hexCodeString == null || hexCodeString == "")
         {
+            HideErrorMessage();
             return;
         }
 
-        Color newColor;
-        string htmlValue = "#" + hexCodeString;
-        if (ColorUtility.TryParseHtmlString(htmlValue, out newColor))
+        if (hexCodeString.Length != 6)
         {
-            hexCodeColor = newColor;
+            ShowErrorMessage("Error: Inputs must be exactly 6 characters long."); // Display error message if length is invalid
+            return;
+        }
+
+        // Try to parse the hex code string to a color
+        if (ColorUtility.TryParseHtmlString("#" + hexCodeString, out Color newColor))
+        {
+            hexCodeColor = newColor; // Store valid color
+            HideErrorMessage();
         }
         else
         {
-            Debug.Log("Error: " + hexCodeString + " is not a valid hexadecimal value.");
+            ShowErrorMessage("Error:" + hexCodeString + " is not a valid hexadecimal value."); // Show error for invalid input
+            Debug.Log("Error: " + hexCodeString + " is not a valid hexadecimal value."); // Log error (probably not needed)
         }
     }
 
+    // Apply color based on hex code input
     public void OnSetHexCodeColor()
     {
-        if (!hexCodeColor.HasValue) { return; }
+        if (!hexCodeColor.HasValue) { return; } // Check if color is valid
         GameObject[] allLEDs = GetAllLEDs();
-        UpdateLEDColors(allLEDs, hexCodeColor.Value);
+        UpdateLEDColors(allLEDs, hexCodeColor.Value); // Update LED colors
     }
-
+    // Random Color Generation
     public void OnSetRandom()
     {
         // Function specifically made to handle "Random" button call.
@@ -271,13 +335,13 @@ public class ColorController : MonoBehaviour
 
     void SetRandom()
     {
-        // Disable fading
-        fading = false;
+        isFading = false; // Stop any fading effect
 
-        Color newColor;
-        GameObject[] allLEDs = GetAllLEDs();
+        Color newColor; // Define a new color
+        GameObject[] allLEDs = GetAllLEDs(); // Get all LEDs
         foreach (GameObject LED in allLEDs)
         {
+            // Generate color based on given a range
             int randomCol = Random.Range(1, 6);
             if (randomCol < 3)
             {
@@ -291,9 +355,20 @@ public class ColorController : MonoBehaviour
             {
                 newColor = new Color(0.8666667f, 0.3333333f, 0.04705882f, .5f);
             }
-            LED.GetComponent<Renderer>().material.color = newColor;
-            LED.GetComponent<Renderer>().material.SetColor("_EmissionColor", newColor);
+            LED.GetComponent<Renderer>().material.color = newColor; // Set LED color
+            LED.GetComponent<Renderer>().material.SetColor("_EmissionColor", newColor); // Set emission color
         }
+    }
+    // Handles Errors and providing a message about the error to the user.
+    void ShowErrorMessage(string message)
+    {
+        errorMessage.text = message; // Set error message text
+        errorMessage.gameObject.SetActive(true); // Show error message
+    }
+    void HideErrorMessage()
+    {
+
+        errorMessage.gameObject.SetActive(false); // Hide error message
     }
 }
 

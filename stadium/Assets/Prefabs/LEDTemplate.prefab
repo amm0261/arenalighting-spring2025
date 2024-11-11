@@ -11,13 +11,12 @@ GameObject:
   - component: {fileID: 2181234783051363236}
   - component: {fileID: 2181234783051363235}
   - component: {fileID: 2181234783051363234}
-  - component: {fileID: 2181234783051363237}
   m_Layer: 0
   m_Name: LEDTemplate
   m_TagString: LED
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &2181234783051363236
 Transform:
