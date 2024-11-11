@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 // To use this example, attach this script to an empty GameObject.
 // Create three buttons (Create>UI>Button). Next, select your
 // empty GameObject in the Hierarchy and click and drag each of your
@@ -26,6 +27,7 @@ public class ColorController : MonoBehaviour
     Color? hexCodeColor;    // Stores hex color values
 
     // State Variables
+    private Dictionary<string, GameObject[]> activeLEDsCached = new Dictionary<string, GameObject[]>();  // Caches active LEDs for each section
     private bool colorNeedsUpdate = false;  // Flag to check if color needs to be updated.
     private Color lastColor;                // Stores the last color that was applied to the LEDs.
     bool isRandomizing;                     // Flag to check if random color generation is enabled
@@ -40,13 +42,6 @@ public class ColorController : MonoBehaviour
     public float fadeDuration = 1.0f;       // Duration of the fade in seconds
     [SerializeField]
     float fadeTime;                         // Time spent fading
-
-
-    private GameObject[] allLEDs;           // Array to hold LED GameObjects for caching
-
-    // Note: testing for section applier
-    public bool sectionToggle;
-    public GameObject[] sectionLEDs;
     public SelectorController selectorController;
 
     void Start()
@@ -74,7 +69,7 @@ public class ColorController : MonoBehaviour
         }
 
         // Check whether current section is checked or not (also happens in update)
-        checkToggle();
+        CacheLEDGroups();
     }
     void Update()
     {
@@ -82,9 +77,6 @@ public class ColorController : MonoBehaviour
         {
         GradientColorFade();
         }
-        // Note: testing for section applier
-        checkToggle();
-        GetSectionLights();
     }
     // Handles UI Input for fade time
     public void OnSetFadeTime(string fadeTime)
@@ -112,36 +104,29 @@ public class ColorController : MonoBehaviour
 
     // LED Management
     // Handles updating the LED cache.
-    void UpdateAllLEDsCache()
+    void CacheLEDGroups()
     {
-        allLEDs = GetAllLEDs(); // Populates array with all LEDs in the scene. This is cached for performance reasons.
-    }
-    GameObject[] GetAllLEDs()
-    {
-        string ledTag = "LED"; // Tag for identifying LED objects
-        return GameObject.FindGameObjectsWithTag(ledTag); // Returns all GameObjects with the LED tag
-    }
-
-    // Note: testing for section applier
-    public void GetSectionLights()
-    {
-        sectionLEDs = selectorController.sectionLEDs;
-    }
-
-    void checkToggle()
-    {
-        if (selectorController.CurrentToggle.isOn)
+        activeLEDsCached.Clear(); // Clears the cache to prevent duplicates
+        foreach (string sectionName in selectorController.sectionNames)
         {
-            sectionToggle = true;
-        } else
-        {
-            sectionToggle = false;
+            SectionCollider sectioncollider = GameObject.Find(sectionName)?.GetComponent<SectionCollider>(); // Gets all LEDs in the section
+            activeLEDsCached[sectionName] = sectioncollider.sectionLEDs; // Adds LEDs to the cache
         }
     }
 
+    GameObject[] GetCachedLEDs()
+    {
+        List<GameObject> allActiveLEDs = new List<GameObject>(); // List to store all active LEDs
+        foreach (var section in activeLEDsCached.Values) // Iterates through each section in the cache
+        {
+            allActiveLEDs.AddRange(section); // Adds all LEDs in the section to the list
+        }
+        return allActiveLEDs.ToArray(); // Returns the list as an array
+    }
+
+
     void GradientColorFade()
     {
-        GameObject[] allLEDs;
         GameObject[] allActiveLEDs = GetCachedLEDs(); // Gets LEDs from the cache
 
         if (isFading)
@@ -230,7 +215,6 @@ public class ColorController : MonoBehaviour
     void ApplyColorUpdates(Color colorToApply)
     {
         //Apply color to all LEDs in the array
-        if (allLEDs == null || allLEDs.Length == 0) return; // Check if LED array is valid
 
         foreach (GameObject LED in GetCachedLEDs())
         {
@@ -251,10 +235,6 @@ public class ColorController : MonoBehaviour
     {
         // string htmlValue = "#03244d";
         Color newColor = new Color(0.012f, 0.141f, 0.302f, .500f);
-        if (sectionToggle)
-        {
-            UpdateLEDColors(sectionLEDs, newColor);
-        } else
         GameObject[] allLEDs = GetCachedLEDs(); // Get all LEDs
         UpdateLEDColors(allLEDs, newColor);
     }
@@ -263,7 +243,7 @@ public class ColorController : MonoBehaviour
     {
         // string htmlValue = "#03244d";
         Color newColor =  new Color(0.2862745f, 0.4313726f, 0.6117647f, .5f);  // Define color for Blue 2
-        GameObject[] allLEDs = GetAllLEDs();
+        GameObject[] allLEDs = GetCachedLEDs(); // Get all LEDs
         UpdateLEDColors(allLEDs, newColor); // Update color
     }
 
@@ -317,7 +297,7 @@ public class ColorController : MonoBehaviour
     public void OnSetHexCodeColor()
     {
         if (!hexCodeColor.HasValue) { return; } // Check if color is valid
-        GameObject[] allLEDs = GetAllLEDs();
+        GameObject[] allLEDs = GetCachedLEDs(); // Get all LEDs
         UpdateLEDColors(allLEDs, hexCodeColor.Value); // Update LED colors
     }
     // Random Color Generation
@@ -332,6 +312,7 @@ public class ColorController : MonoBehaviour
         isFading = false; // Stop any fading effect
 
         Color newColor; // Define a new color
+        GameObject[] allLEDs = GetCachedLEDs(); // Get all LEDs
         foreach (GameObject LED in allLEDs)
         {
             // Generate color based on given a range
@@ -364,4 +345,3 @@ public class ColorController : MonoBehaviour
         errorMessage.gameObject.SetActive(false); // Hide error message
     }
 }
-
