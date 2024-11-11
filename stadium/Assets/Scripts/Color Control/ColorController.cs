@@ -142,8 +142,7 @@ public class ColorController : MonoBehaviour
     void GradientColorFade()
     {
         GameObject[] allLEDs;
-        if (sectionToggle) { allLEDs = sectionLEDs; }
-        else { allLEDs = GetAllLEDs(); }
+        GameObject[] allActiveLEDs = GetCachedLEDs(); // Gets LEDs from the cache
 
         if (isFading)
         {
@@ -156,7 +155,7 @@ public class ColorController : MonoBehaviour
                 frameColor = gradient.Evaluate(1.0f);
             }
 
-            foreach (GameObject LED in allLEDs)
+            foreach (GameObject LED in allActiveLEDs)
             {
                 LED.GetComponent<Renderer>().material.color = frameColor;
                 LED.GetComponent<Renderer>().material.SetColor("_EmissionColor", frameColor);
@@ -168,7 +167,6 @@ public class ColorController : MonoBehaviour
     {
         // Debugging
         Debug.Log("Starting update function");
-        GetSectionLights();
         Debug.Log(leds[0].GetComponent<Renderer>().material.color);
         Debug.Log(leds[0].GetComponent<Renderer>().material.GetColor("_EmissionColor"));
 
@@ -178,11 +176,11 @@ public class ColorController : MonoBehaviour
         }
         else
         {
-            StartFading(leds, newColor); // Start fading process
+            StartFading(allActiveLEDs, newColor); // Start fading process
 
         }
     }
-    void StartFading(GameObject[] leds, Color endColor)
+    void StartFading(GameObject[] leds, Color endcolor)
     {
         // Prepare gradient for fade effect
         GameObject firstLED = leds[0];
@@ -234,7 +232,7 @@ public class ColorController : MonoBehaviour
         //Apply color to all LEDs in the array
         if (allLEDs == null || allLEDs.Length == 0) return; // Check if LED array is valid
 
-        foreach (GameObject LED in allLEDs)
+        foreach (GameObject LED in GetCachedLEDs())
         {
             Renderer ledRenderer = LED.GetComponent<Renderer>(); // Get renderer of the LED
             ledRenderer.material.color = colorToApply; // Set material color
@@ -253,16 +251,12 @@ public class ColorController : MonoBehaviour
     {
         // string htmlValue = "#03244d";
         Color newColor = new Color(0.012f, 0.141f, 0.302f, .500f);
-
-        // All or current section only
         if (sectionToggle)
         {
             UpdateLEDColors(sectionLEDs, newColor);
         } else
-        {
-            GameObject[] allLEDs = GetAllLEDs();
-            UpdateLEDColors(allLEDs, newColor);
-        }
+        GameObject[] allLEDs = GetCachedLEDs(); // Get all LEDs
+        UpdateLEDColors(allLEDs, newColor);
     }
 
     public void OnSetBlue2()
@@ -277,7 +271,7 @@ public class ColorController : MonoBehaviour
     {
         // string htmlValue = "#03244d";
         Color newColor = new Color(0.8666667f, 0.3333333f, 0.04705882f, .5f);  // Define color for Orange 1
-        GameObject[] allLEDs = GetAllLEDs();
+        GameObject[] allLEDs = GetCachedLEDs();
         UpdateLEDColors(allLEDs, newColor); // Update color
     }
 
@@ -285,7 +279,7 @@ public class ColorController : MonoBehaviour
     {
         // string htmlValue = "#03244d";
         Color newColor = new Color(0.9647059f, 0.5019608f, 0.1490196f, .5f); // Define color for Orange 2
-        GameObject[] allLEDs = GetAllLEDs();
+        GameObject[] allLEDs = GetCachedLEDs();
         UpdateLEDColors(allLEDs, newColor); // Update color
     }
 
@@ -338,7 +332,6 @@ public class ColorController : MonoBehaviour
         isFading = false; // Stop any fading effect
 
         Color newColor; // Define a new color
-        GameObject[] allLEDs = GetAllLEDs(); // Get all LEDs
         foreach (GameObject LED in allLEDs)
         {
             // Generate color based on given a range
