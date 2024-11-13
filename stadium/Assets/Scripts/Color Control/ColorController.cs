@@ -27,7 +27,7 @@ public class ColorController : MonoBehaviour
     Color? hexCodeColor;    // Stores hex color values
 
     // State Variables
-    private Dictionary<string, GameObject[]> activeLEDsCached = new Dictionary<string, GameObject[]>();  // Caches active LEDs for each section
+    private Dictionary<string, List<GameObject>> activeLEDsCached = new Dictionary<string, List<GameObject>>();  // Caches active LEDs for each section
     private bool colorNeedsUpdate = false;  // Flag to check if color needs to be updated.
     private Color lastColor;                // Stores the last color that was applied to the LEDs.
     bool isRandomizing;                     // Flag to check if random color generation is enabled
@@ -107,27 +107,31 @@ public class ColorController : MonoBehaviour
     void CacheLEDGroups()
     {
         activeLEDsCached.Clear(); // Clears the cache to prevent duplicates
-        foreach (string sectionName in selectorController.sectionNames)
+        foreach (string sectionName in selectorController.useSectionNames)
         {
-            SectionCollider sectioncollider = GameObject.Find(sectionName)?.GetComponent<SectionCollider>(); // Gets all LEDs in the section
+            Debug.Log(sectionName);
+            SectionCollider sectioncollider = GameObject.Find(sectionName)?.GetComponentInChildren<SectionCollider>(); // Gets all LEDs in the section
+            Debug.Log(sectioncollider);
             activeLEDsCached[sectionName] = sectioncollider.sectionLEDs; // Adds LEDs to the cache
         }
     }
 
-    GameObject[] GetCachedLEDs()
+    List<GameObject> GetCachedLEDs()
     {
+        CacheLEDGroups(); // Update the cached LEDs group
         List<GameObject> allActiveLEDs = new List<GameObject>(); // List to store all active LEDs
         foreach (var section in activeLEDsCached.Values) // Iterates through each section in the cache
         {
             allActiveLEDs.AddRange(section); // Adds all LEDs in the section to the list
         }
-        return allActiveLEDs.ToArray(); // Returns the list as an array
+        Debug.Log("Successfully returning active LEDs");
+        return allActiveLEDs; // Returns the list
     }
 
 
     void GradientColorFade()
     {
-        GameObject[] allActiveLEDs = GetCachedLEDs(); // Gets LEDs from the cache
+        List<GameObject> allActiveLEDs = GetCachedLEDs(); // Gets LEDs from the cache
 
         if (isFading)
         {
@@ -148,12 +152,15 @@ public class ColorController : MonoBehaviour
         }
     }
 
-    void UpdateLEDColors(GameObject[] leds, Color newColor)
+    void UpdateLEDColors(List<GameObject> leds, Color newColor)
     {
         // Debugging
         Debug.Log("Starting update function");
+        Debug.Log(leds.Count);
+        
         Debug.Log(leds[0].GetComponent<Renderer>().material.color);
         Debug.Log(leds[0].GetComponent<Renderer>().material.GetColor("_EmissionColor"));
+
 
         if (!fadeToggle.isOn)
         {
@@ -161,11 +168,11 @@ public class ColorController : MonoBehaviour
         }
         else
         {
-            StartFading(allActiveLEDs, newColor); // Start fading process
+            StartFading(leds, newColor); // Start fading process
 
         }
     }
-    void StartFading(GameObject[] leds, Color endcolor)
+    void StartFading(List<GameObject> leds, Color endColor)
     {
         // Prepare gradient for fade effect
         GameObject firstLED = leds[0];
@@ -215,9 +222,10 @@ public class ColorController : MonoBehaviour
     void ApplyColorUpdates(Color colorToApply)
     {
         //Apply color to all LEDs in the array
-
+        int i = 0;
         foreach (GameObject LED in GetCachedLEDs())
         {
+            Debug.Log(i++);
             Renderer ledRenderer = LED.GetComponent<Renderer>(); // Get renderer of the LED
             ledRenderer.material.color = colorToApply; // Set material color
             ledRenderer.material.SetColor("_EmissionColor", colorToApply); // Set emission color
@@ -225,8 +233,9 @@ public class ColorController : MonoBehaviour
 
         // Debugging
         Debug.Log("Ending update function");
-        Debug.Log(allLEDs[0].GetComponent<Renderer>().material.color);
-        Debug.Log(allLEDs[0].GetComponent<Renderer>().material.GetColor("_EmissionColor"));
+        // FIXME: Why are the below commands for allLEDs? Variable doesn't even exist, commented out for now
+        //Debug.Log(allLEDs[0].GetComponent<Renderer>().material.color);
+        //Debug.Log(allLEDs[0].GetComponent<Renderer>().material.GetColor("_EmissionColor"));
 
     }
 
@@ -235,7 +244,7 @@ public class ColorController : MonoBehaviour
     {
         // string htmlValue = "#03244d";
         Color newColor = new Color(0.012f, 0.141f, 0.302f, .500f);
-        GameObject[] allLEDs = GetCachedLEDs(); // Get all LEDs
+        List<GameObject> allLEDs = GetCachedLEDs(); // Get all LEDs
         UpdateLEDColors(allLEDs, newColor);
     }
 
@@ -243,7 +252,7 @@ public class ColorController : MonoBehaviour
     {
         // string htmlValue = "#03244d";
         Color newColor =  new Color(0.2862745f, 0.4313726f, 0.6117647f, .5f);  // Define color for Blue 2
-        GameObject[] allLEDs = GetCachedLEDs(); // Get all LEDs
+        List<GameObject> allLEDs = GetCachedLEDs(); // Get all LEDs
         UpdateLEDColors(allLEDs, newColor); // Update color
     }
 
@@ -251,7 +260,7 @@ public class ColorController : MonoBehaviour
     {
         // string htmlValue = "#03244d";
         Color newColor = new Color(0.8666667f, 0.3333333f, 0.04705882f, .5f);  // Define color for Orange 1
-        GameObject[] allLEDs = GetCachedLEDs();
+        List<GameObject> allLEDs = GetCachedLEDs();
         UpdateLEDColors(allLEDs, newColor); // Update color
     }
 
@@ -259,7 +268,7 @@ public class ColorController : MonoBehaviour
     {
         // string htmlValue = "#03244d";
         Color newColor = new Color(0.9647059f, 0.5019608f, 0.1490196f, .5f); // Define color for Orange 2
-        GameObject[] allLEDs = GetCachedLEDs();
+        List<GameObject> allLEDs = GetCachedLEDs();
         UpdateLEDColors(allLEDs, newColor); // Update color
     }
 
@@ -297,7 +306,7 @@ public class ColorController : MonoBehaviour
     public void OnSetHexCodeColor()
     {
         if (!hexCodeColor.HasValue) { return; } // Check if color is valid
-        GameObject[] allLEDs = GetCachedLEDs(); // Get all LEDs
+        List<GameObject> allLEDs = GetCachedLEDs(); // Get all LEDs
         UpdateLEDColors(allLEDs, hexCodeColor.Value); // Update LED colors
     }
     // Random Color Generation
@@ -312,7 +321,7 @@ public class ColorController : MonoBehaviour
         isFading = false; // Stop any fading effect
 
         Color newColor; // Define a new color
-        GameObject[] allLEDs = GetCachedLEDs(); // Get all LEDs
+        List<GameObject> allLEDs = GetCachedLEDs(); // Get all LEDs
         foreach (GameObject LED in allLEDs)
         {
             // Generate color based on given a range
