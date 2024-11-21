@@ -18,8 +18,23 @@ public class FixedCameraControl : MonoBehaviour
     private Vector3 targetPosition;
     private Quaternion targetRotation;
 
+    public SelectorController selectorController;
+
+
     private void Start()
     {
+
+        // Find the GameObject with the SelectorController component
+        GameObject selectorControllerObject = GameObject.Find("SelectorController");
+
+        // Check if the GameObject was found
+        if (selectorControllerObject != null)
+        {
+            // Get the SelectorController component from the GameObject
+            selectorController = selectorControllerObject.GetComponent<SelectorController>();
+        }
+
+
         fixedViews = FixedCameraControlData.LoadFixedCameraControlData();
         SetupDefaultFixedView();
     }
@@ -55,6 +70,8 @@ public class FixedCameraControl : MonoBehaviour
 
         UpdateUI(newPositionName);
         MoveTo(transformData.Item1, transformData.Item2);
+        UpdateSection(newPositionName);
+
     }
 
     public void ChangePositionLeft()
@@ -75,11 +92,19 @@ public class FixedCameraControl : MonoBehaviour
 
         UpdateUI(newPositionName);
         MoveTo(transformData.Item1, transformData.Item2);
+        UpdateSection(newPositionName);
+
     }
 
     private void UpdateUI(string positionName)
     {
         fixedPositionNameText.text = positionName;
+
+    }
+
+    private void UpdateSection(string positionName)
+    {
+        selectorController.ChangeCurrentSection(positionName);
     }
 
     public void MoveTo(Vector3 pos, Vector3 rotationVector)

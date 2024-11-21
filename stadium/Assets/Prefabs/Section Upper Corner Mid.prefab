@@ -871,6 +871,7 @@ Transform:
   - {fileID: 4869285608208205088}
   - {fileID: 5133127958784842217}
   - {fileID: 2082678234792505704}
+  - {fileID: 6355926065555821809}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2731,6 +2732,66 @@ Transform:
   m_Father: {fileID: 2082678234792505704}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0.264, y: -2.005, z: -0.004}
+--- !u!1 &7944639112115354419
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6355926065555821809}
+  - component: {fileID: 4181522073509208763}
+  - component: {fileID: 3313151489175083691}
+  m_Layer: 0
+  m_Name: Collider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6355926065555821809
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7944639112115354419}
+  m_LocalRotation: {x: 0.019227484, y: -0.06705422, z: -0.27496588, w: 0.9589201}
+  m_LocalPosition: {x: -15.466, y: 1.851, z: -16.858}
+  m_LocalScale: {x: 1, y: 0.5, z: 1}
+  m_Children: []
+  m_Father: {fileID: 605287096640361715}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: -8, z: -32}
+--- !u!65 &4181522073509208763
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7944639112115354419}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 5.8, y: 1, z: 3.1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3313151489175083691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7944639112115354419}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f393ce28d3d3864f9b2274f5660b912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selectorController: {fileID: 0}
+  selectorControllerScript: {fileID: 0}
+  sectionName: 
 --- !u!1 &8062283762422307108
 GameObject:
   m_ObjectHideFlags: 0
