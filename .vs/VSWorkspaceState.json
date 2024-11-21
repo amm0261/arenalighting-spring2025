@@ -5,10 +5,11 @@
     "\\assets\\camera_control_users_guide",
     "\\stadium",
     "\\stadium\\Assets",
+    "\\stadium\\Assets\\Scenes",
     "\\stadium\\Assets\\Scripts",
-    "\\stadium\\Assets\\Scripts\\Menu UI Control",
-    "\\stadium\\Assets\\Scripts\\Performance Control"
+    "\\stadium\\Assets\\Scripts\\Camera Control",
+    "\\stadium\\Assets\\Scripts\\Menu UI Control"
   ],
-  "SelectedNode": "\\stadium\\Assets\\Scripts\\Performance Control\\PerformanceControl.cs",
+  "SelectedNode": "\\stadium\\Assets\\Prefabs",
   "PreviewInSolutionExplorer": false
 }
