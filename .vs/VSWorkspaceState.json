@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\assets",
+    "\\assets\\camera_control_users_guide",
+    "\\stadium",
+    "\\stadium\\Assets",
+    "\\stadium\\Assets\\Scenes",
+    "\\stadium\\Assets\\Scripts",
+    "\\stadium\\Assets\\Scripts\\Camera Control",
+    "\\stadium\\Assets\\Scripts\\Menu UI Control"
+  ],
+  "SelectedNode": "\\stadium\\Assets\\Scripts\\Camera Control\\FixedCameraControl.cs",
+  "PreviewInSolutionExplorer": false
+}
