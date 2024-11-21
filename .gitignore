@@ -1,4 +1,12 @@
 # Other
 .DS_Store
 
+# Visual Studio temporary files
+*.suo
+*.sqlite
+*.json
+
+# Specifically exclude Visual Studio workspace-related files
+.vs/
+
 .gitconfig
