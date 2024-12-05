@@ -23,8 +23,6 @@ public class SelectorController : MonoBehaviour
     // Note: testing section applier
     public GameObject[] sectionLEDs;
 
-    public GameObject[] activeLEDs;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -62,8 +60,8 @@ public class SelectorController : MonoBehaviour
 
     // Take input from SectionSelectionInput, then check if each section actually exists
     public void CheckSectionValidity()
-    {
-     Debug.Log("ADD FUNCTIONALITY");
+    {   
+     Debug.Log("ADD FUNCTIONALITY");   
     }
 
     // Easy way to activate or deactivate sections for section applier
@@ -120,7 +118,7 @@ public class SelectorController : MonoBehaviour
             // Assign the array to sectionLEDs
             sectionLEDs = LEDs;
 
-        }
+        } 
     }
 
     public void DeactivateAllElse(List<string> currentSections)
