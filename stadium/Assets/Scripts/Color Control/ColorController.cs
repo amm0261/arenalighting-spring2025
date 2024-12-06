@@ -35,6 +35,11 @@ public class ColorController : MonoBehaviour
     [SerializeField]
     bool randomizing;
 
+    // Note: testing for section applier
+    public bool sectionToggle;
+    public GameObject[] sectionLEDs;
+    public SelectorController selectorController;
+
     void Start()
     {
         fadeFrame = 0.0f;
@@ -47,11 +52,28 @@ public class ColorController : MonoBehaviour
         });
 
         randomizing = false;
+
+        // Find the GameObject with the SelectorController component
+        GameObject selectorControllerObject = GameObject.Find("SelectorController");
+
+        // Check if the GameObject was found
+        if (selectorControllerObject != null)
+        {
+            // Get the SelectorController component from the GameObject
+            selectorController = selectorControllerObject.GetComponent<SelectorController>();
+        }
+
+        // Check whether current section is checked or not (also happens in update)
+        checkToggle();
     }
 
     void Update()
     {
         GradientColorFade();
+
+        // Note: testing for section applier
+        checkToggle();
+        GetSectionLights();
     }
 
     public void OnSetSpeed(string speed)
@@ -83,9 +105,29 @@ public class ColorController : MonoBehaviour
         return GameObject.FindGameObjectsWithTag(ledTag);
     }
 
+    // Note: testing for section applier
+    public void GetSectionLights()
+    {
+        sectionLEDs = selectorController.sectionLEDs;
+    }
+
+    void checkToggle()
+    {
+        if (selectorController.CurrentToggle.isOn)
+        {
+            sectionToggle = true;
+        } else
+        {
+            sectionToggle = false;
+        }
+    }
+
     void GradientColorFade()
     {
-        GameObject[] allLEDs = GetAllLEDs();
+        GameObject[] allLEDs;
+        if (sectionToggle) { allLEDs = sectionLEDs; }
+        else { allLEDs = GetAllLEDs(); }
+        
         if (fading)
         {
             fadeTime += Time.deltaTime;
@@ -107,6 +149,12 @@ public class ColorController : MonoBehaviour
 
     void UpdateLEDColors(GameObject[] leds, Color newColor)
     {
+        // Debugging
+        Debug.Log("Starting update function");
+        GetSectionLights();
+        Debug.Log(leds[0].GetComponent<Renderer>().material.color);
+        Debug.Log(leds[0].GetComponent<Renderer>().material.GetColor("_EmissionColor"));
+
         if (!fadeToggle.isOn)
         {
             foreach (GameObject LED in leds)
@@ -140,14 +188,28 @@ public class ColorController : MonoBehaviour
             fadeTime = 0.0f;
             fading = true;
         }
+
+        // Debugging
+        Debug.Log("Ending update function");
+        Debug.Log(leds[0].GetComponent<Renderer>().material.color);
+        Debug.Log(leds[0].GetComponent<Renderer>().material.GetColor("_EmissionColor"));
+
     }
 
     public void OnSetBlue1()
     {
         // string htmlValue = "#03244d";
         Color newColor = new Color(0.012f, 0.141f, 0.302f, .500f);
-        GameObject[] allLEDs = GetAllLEDs();
-        UpdateLEDColors(allLEDs, newColor);
+
+        // All or current section only
+        if (sectionToggle)
+        {
+            UpdateLEDColors(sectionLEDs, newColor);
+        } else
+        {
+            GameObject[] allLEDs = GetAllLEDs();
+            UpdateLEDColors(allLEDs, newColor);
+        }
     }
 
     public void OnSetBlue2()
