@@ -12,14 +12,13 @@ using UnityEngine.UI;
 public class PerformanceControl : MonoBehaviour
 {
     private GameObject[] allLEDs;
-    private bool isHalfDisabled = false;
+    private bool performanceMode = false;
 
     void Start()
     {
         // Cache all LED GameObjects at the start
         allLEDs = GetAllLEDs();
         
-        // Attach the button click event to the method
     }
 
 
@@ -32,26 +31,26 @@ public class PerformanceControl : MonoBehaviour
 
     public void DisableHalfLEDs()
     {
-        //refresh LEDs
-        GameObject[] allCopy = allLEDs;
+        // refresh LEDs
+        //GameObject[] allCopy = allLEDs;
 
-        if (allCopy == null || allCopy.Length == 0)
+        if (allLEDs == null || allLEDs.Length == 0)
         {
             Debug.LogWarning("No LEDs found!");
             return;
         }
 
         // Loop through the lights
-        for (int i = 0; i < allCopy.Length; i++)
+        for (int i = 0; i < allLEDs.Length; i++)
         {
             // Disable every second light
             if (i % 2 == 0)
             {
-                allCopy[i].SetActive(!isHalfDisabled);
+                allLEDs[i].SetActive(performanceMode);
             }
         }
 
-        isHalfDisabled = !isHalfDisabled;
+        performanceMode = !performanceMode;
     }
 }
 
