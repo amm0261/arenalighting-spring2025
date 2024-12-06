@@ -7,9 +7,10 @@
     "\\stadium\\Assets",
     "\\stadium\\Assets\\Scenes",
     "\\stadium\\Assets\\Scripts",
+    "\\stadium\\Assets\\Scripts\\Color Control",
     "\\stadium\\Assets\\Scripts\\Light FX Control",
     "\\stadium\\Assets\\Scripts\\Performance Control"
   ],
-  "SelectedNode": "\\stadium\\Assets\\Scripts\\Light FX Control\\LightFxController.cs",
+  "SelectedNode": "\\stadium\\Assets\\Scripts\\Menu UI Control",
   "PreviewInSolutionExplorer": false
 }
