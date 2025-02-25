@@ -11,6 +11,10 @@ using UnityEngine.UI;
 
 public class ColorController : MonoBehaviour
 {
+    /*************/
+    /* VARIABLES */
+    /*************/
+
     //Make sure to attach these Buttons in the Inspector
     public Toggle fadeToggle;
     public Toggle randomToggle;
@@ -35,23 +39,39 @@ public class ColorController : MonoBehaviour
     [SerializeField]
     bool randomizing;
 
+    [SerializeField]
+    GameObject[] allLEDs;
+
+    [SerializeField]
+    Color previousColor; //TODO: connect this to global controller so that the previous color is always correctly stored
+
     // Note: testing for section applier
     public bool sectionToggle;
     public GameObject[] sectionLEDs;
     public SelectorController selectorController;
+
+
+
+    /**********************/
+    /* START() & UPDATE() */
+    /**********************/
 
     void Start()
     {
         fadeFrame = 0.0f;
         fadeDuration = 1.0f;
 
+        // "Hexcode" field in UI
         hexCodeInput.onEndEdit.AddListener(OnEditHexCodeString);
+
+        // "Fade time" field in UI
         speedInput.onEndEdit.AddListener(OnSetSpeed);
+
+        // Toggle for the "continual random" UI option
+        randomizing = false;
         randomToggle.onValueChanged.AddListener(delegate {
             OnContinualRandomToggle(randomToggle.isOn);
-        });
-
-        randomizing = false;
+        }); 
 
         // Find the GameObject with the SelectorController component
         GameObject selectorControllerObject = GameObject.Find("SelectorController");
@@ -76,6 +96,41 @@ public class ColorController : MonoBehaviour
         GetSectionLights();
     }
 
+
+
+    /*****************/
+    /* SECTION-BASED */
+    /*****************/
+
+    GameObject[] GetAllLEDs()
+    {
+        return GameObject.FindGameObjectsWithTag("LED");
+    }
+
+    // Note: testing for section applier
+    public void GetSectionLights()
+    {
+        sectionLEDs = selectorController.sectionLEDs;
+    }
+
+    void checkToggle()
+    {
+        if (selectorController.CurrentToggle.isOn)
+        {
+            sectionToggle = true;
+        }
+        else
+        {
+            sectionToggle = false;
+        }
+    }
+
+
+
+    /*************************/
+    /* MISC. COLOR FUNCTIONS */
+    /*************************/
+
     public void OnSetSpeed(string speed)
     {
         fadeDuration = float.Parse(speed);
@@ -98,38 +153,20 @@ public class ColorController : MonoBehaviour
         }
     }
 
-    GameObject[] GetAllLEDs()
-    {
-        string ledTag;
-        ledTag = "LED";
-        return GameObject.FindGameObjectsWithTag(ledTag);
-    }
-
-    // Note: testing for section applier
-    public void GetSectionLights()
-    {
-        sectionLEDs = selectorController.sectionLEDs;
-    }
-
-    void checkToggle()
-    {
-        if (selectorController.CurrentToggle.isOn)
-        {
-            sectionToggle = true;
-        } else
-        {
-            sectionToggle = false;
-        }
-    }
-
     void GradientColorFade()
     {
-        GameObject[] allLEDs;
-        if (sectionToggle) { allLEDs = sectionLEDs; }
-        else { allLEDs = GetAllLEDs(); }
-        
-        if (fading)
-        {
+        if (fading) {
+            GameObject[] LEDsToUpdate;
+            if (sectionToggle) {
+                LEDsToUpdate = sectionLEDs;
+
+            } else {
+                if (allLEDs == null) {
+                    allLEDs = GetAllLEDs();
+                }
+                LEDsToUpdate = allLEDs;
+            }
+
             fadeTime += Time.deltaTime;
             fadeFrame = fadeTime / fadeDuration;
             Color frameColor = gradient.Evaluate(fadeFrame);
@@ -137,13 +174,30 @@ public class ColorController : MonoBehaviour
             {
                 fading = false;
                 frameColor = gradient.Evaluate(1.0f);
+            } else {
+                frameColor = Color.Lerp(previousColor, gradient.Evaluate(1.0f), fadeFrame);
             }
 
-            foreach (GameObject LED in allLEDs)
+            previousColor = frameColor;
+
+            MaterialPropertyBlock block = new MaterialPropertyBlock();
+            block.SetColor("_Color", frameColor);
+            block.SetColor("_EmissionColor", frameColor);
+            block.SetFloat("_Alpha", 1);
+
+            foreach (GameObject LED in LEDsToUpdate)
             {
-                LED.GetComponent<Renderer>().material.color = frameColor;
-                LED.GetComponent<Renderer>().material.SetColor("_EmissionColor", frameColor);
+                Renderer renderer = LED.GetComponent<Renderer>();
+                renderer.SetPropertyBlock(block);
             }
+
+            //foreach (GameObject LED in LEDsToUpdate)
+            //{
+            //    LED.GetComponent<Renderer>().material.color = frameColor;
+            //    LED.GetComponent<Renderer>().material.SetColor("_EmissionColor", frameColor);
+            //}
+        } else {
+            allLEDs = null;
         }
     }
 
@@ -195,7 +249,6 @@ public class ColorController : MonoBehaviour
         Debug.Log(leds[0].GetComponent<Renderer>().material.GetColor("_EmissionColor"));
 
     }
-
     public void OnSetBlue1()
     {
         // string htmlValue = "#03244d";
@@ -211,7 +264,6 @@ public class ColorController : MonoBehaviour
             UpdateLEDColors(allLEDs, newColor);
         }
     }
-
     public void OnSetBlue2()
     {
         // string htmlValue = "#03244d";
@@ -219,7 +271,6 @@ public class ColorController : MonoBehaviour
         GameObject[] allLEDs = GetAllLEDs();
         UpdateLEDColors(allLEDs, newColor);
     }
-
     public void OnSetOrange1()
     {
         // string htmlValue = "#03244d";
@@ -227,7 +278,6 @@ public class ColorController : MonoBehaviour
         GameObject[] allLEDs = GetAllLEDs();
         UpdateLEDColors(allLEDs, newColor);
     }
-
     public void OnSetOrange2()
     {
         // string htmlValue = "#03244d";
@@ -236,28 +286,30 @@ public class ColorController : MonoBehaviour
         UpdateLEDColors(allLEDs, newColor);
     }
 
-    public void OnEditHexCodeString(string hexCodeString)
+    public void OnEditHexCodeString(string hexCodeString) // Runs when hexcode field is edited
     {
         hexCodeColor = null;
-        if (hexCodeString == null || hexCodeString == "" || hexCodeString.Length != 8)
-        {
+        if (hexCodeString.StartsWith("#")){
+            hexCodeString = hexCodeString.Substring(1); // Sanitize string by removing the initial pound sign, if it exists
+        }
+
+        if (hexCodeString == null || hexCodeString == "" || (hexCodeString.Length != 8 && hexCodeString.Length != 6 && hexCodeString.Length != 3)) {
             return;
         }
 
         Color newColor;
         string htmlValue = "#" + hexCodeString;
-        if (ColorUtility.TryParseHtmlString(htmlValue, out newColor))
-        {
+
+        if (ColorUtility.TryParseHtmlString(htmlValue, out newColor)) {
             hexCodeColor = newColor;
-        }
-        else
-        {
+            Debug.Log(hexCodeColor);
+        } else {
             Debug.Log("Error: " + hexCodeString + " is not a valid hexadecimal value.");
         }
     }
-
-    public void OnSetHexCodeColor()
+    public void OnSetHexCodeColor() // Runs when hexcode field is set
     {
+        Debug.Log(hexCodeColor);
         if (!hexCodeColor.HasValue) { return; }
         GameObject[] allLEDs = GetAllLEDs();
         UpdateLEDColors(allLEDs, hexCodeColor.Value);
@@ -268,7 +320,6 @@ public class ColorController : MonoBehaviour
         // Function specifically made to handle "Random" button call.
         SetRandom();
     }
-
     void SetRandom()
     {
         // Disable fading
@@ -296,4 +347,3 @@ public class ColorController : MonoBehaviour
         }
     }
 }
-
