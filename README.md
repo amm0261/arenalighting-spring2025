@@ -4,10 +4,10 @@ Unity Project that creates virtual simulation of the arena light show as a demo 
 ### Sponsor
 [Mike Moody](mailto:musicmattersbookings@gmail.com)
 
-### Fall 2024 Team Developers
-- Tanner Showalter
-- Leo Hernandez-Rivera
-- Michael Richey
+### Spring 2025 Team Developers
+- Aidan Miller
+- Thomas Pohler
+- Zamarian Bryant
 
 ### Skills required
 - Unity
